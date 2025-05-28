@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/category.dart';
+import '../screens/recipe_page.dart';
 
 class CategoryCard extends StatelessWidget {
   final Category category;
@@ -33,8 +34,11 @@ class CategoryCard extends StatelessWidget {
             if (category.subCategories != null && category.subCategories!.isNotEmpty) {
               _showSubCategories(context);
             } else {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('${category.name} kategorisi seçildi')),
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => RecipePage(category: category),
+                ),
               );
             }
           },
@@ -201,96 +205,135 @@ class CategoryCard extends StatelessWidget {
         ),
         child: Column(
           children: [
-            // Header
+            // Başlık
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary,
+                color: Colors.white,
                 borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(20),
                   topRight: Radius.circular(20),
                 ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    children: [
-                      if (category.icon != null)
-                        Icon(
-                          category.icon,
-                          color: Colors.white,
-                          size: 24,
-                        ),
-                      const SizedBox(width: 8),
-                      Text(
-                        '${category.name} Kategorileri',
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ],
+                  Icon(
+                    category.icon,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.close, color: Colors.white),
-                    onPressed: () => Navigator.of(context).pop(),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          category.name,
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          category.description,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
             ),
-            
-            // Alt kategoriler
+            // Alt kategoriler listesi
             Expanded(
               child: ListView.builder(
                 padding: const EdgeInsets.all(16),
-                itemCount: category.subCategories?.length ?? 0,
+                itemCount: category.subCategories!.length,
                 itemBuilder: (context, index) {
                   final subCategory = category.subCategories![index];
                   return Card(
                     margin: const EdgeInsets.only(bottom: 12),
-                    elevation: 2,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: ListTile(
-                      contentPadding: const EdgeInsets.all(8),
-                      leading: ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: Image.network(
-                          subCategory.imageUrl,
-                          width: 60,
-                          height: 60,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) => Container(
-                            width: 60,
-                            height: 60,
-                            color: Colors.grey[300],
-                            child: const Icon(Icons.image_not_supported),
-                          ),
-                        ),
-                      ),
-                      title: Text(
-                        subCategory.name,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
-                      subtitle: Text(
-                        subCategory.description,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(color: Colors.grey[600]),
-                      ),
-                      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                    child: InkWell(
                       onTap: () {
-                        Navigator.of(context).pop();
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('${subCategory.name} alt kategorisi seçildi')),
+                        Navigator.pop(context); // Modal'ı kapat
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => RecipePage(
+                              category: category,
+                              subCategory: subCategory,
+                            ),
+                          ),
                         );
                       },
+                      borderRadius: BorderRadius.circular(12),
+                      child: Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: Row(
+                          children: [
+                            // Alt kategori resmi
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Image.network(
+                                subCategory.imageUrl,
+                                width: 80,
+                                height: 80,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Container(
+                                    width: 80,
+                                    height: 80,
+                                    color: Colors.grey[300],
+                                    child: const Icon(Icons.image_not_supported, color: Colors.white),
+                                  );
+                                },
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            // Alt kategori bilgileri
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    subCategory.name,
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    subCategory.description,
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.grey,
+                                    ),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const Icon(
+                              Icons.chevron_right,
+                              color: Colors.grey,
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   );
                 },
