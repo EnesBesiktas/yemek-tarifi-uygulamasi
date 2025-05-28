@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'home_page.dart';
 
 class LoginPage extends StatefulWidget {
@@ -11,10 +12,11 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   
-  // Predefined credentials
-  final String _validEmail = "enes.besiktas7@gmail.com";
-  final String _validPassword = "password123";
+  // Add valid credentials
+  final String _validEmail = "admin@tarifburda.com";
+  final String _validPassword = "123456";
   
   String? _errorMessage;
   bool _isLoading = false;
@@ -57,6 +59,41 @@ class _LoginPageState extends State<LoginPage> {
   // Validate login credentials
   bool _validateCredentials(String email, String password) {
     return email == _validEmail && password == _validPassword;
+  }
+
+  Future<void> _signIn() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      await _auth.signInWithEmailAndPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+      );
+      
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const HomePage()),
+        );
+      }
+    } on FirebaseAuthException catch (e) {
+      setState(() {
+        _errorMessage = e.message;
+      });
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Bir hata oluştu. Lütfen tekrar deneyin.';
+      });
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
   }
 
   @override
@@ -315,34 +352,74 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   const SizedBox(height: 20),
                   
-                  // Login Button
-                  OutlinedButton(
-                    onPressed: () {
-                      _showLoginDialog(context);
-                    },
-                    style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: Colors.white, width: 2),
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 30),
-                      minimumSize: const Size(double.infinity, 55),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(50),
+                  // Email TextField
+                  TextField(
+                    controller: _emailController,
+                    decoration: InputDecoration(
+                      filled: true,
+                      fillColor: Colors.white,
+                      hintText: 'E-posta',
+                      prefixIcon: const Icon(Icons.email),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30),
+                        borderSide: BorderSide.none,
                       ),
                     ),
-                    child: const Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.person),
-                        SizedBox(width: 8),
-                        Text(
-                          'Üye Ol/Giriş Yap',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
+                    keyboardType: TextInputType.emailAddress,
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Password TextField
+                  TextField(
+                    controller: _passwordController,
+                    decoration: InputDecoration(
+                      filled: true,
+                      fillColor: Colors.white,
+                      hintText: 'Şifre',
+                      prefixIcon: const Icon(Icons.lock),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30),
+                        borderSide: BorderSide.none,
+                      ),
                     ),
+                    obscureText: true,
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Error Message
+                  if (_errorMessage != null)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: Text(
+                        _errorMessage!,
+                        style: const TextStyle(
+                          color: Colors.red,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+
+                  // Login Button
+                  ElevatedButton(
+                    onPressed: _isLoading ? null : _signIn,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: Theme.of(context).primaryColor,
+                      padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                    ),
+                    child: _isLoading
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(),
+                          )
+                        : const Text(
+                            'Giriş Yap',
+                            style: TextStyle(fontSize: 16),
+                          ),
                   ),
                   const SizedBox(height: 30),
                 ],
@@ -350,201 +427,6 @@ class _LoginPageState extends State<LoginPage> {
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  void _showLoginDialog(BuildContext context) {
-    // Reset error message and controllers when dialog opens
-    setState(() {
-      _errorMessage = null;
-      _isLoading = false;
-    });
-    
-    showDialog(
-      context: context,
-      barrierDismissible: false, // Prevent dismissing while loading
-      builder: (dialogContext) => StatefulBuilder(
-        builder: (builderContext, setDialogState) {
-          
-          // Handle login within this scope
-          void handleLoginWithState() {
-            setDialogState(() {
-              _isLoading = true;
-              _errorMessage = null;
-            });
-            
-            // Simulate network delay
-            Future.delayed(const Duration(seconds: 1), () {
-              final email = _emailController.text.trim();
-              final password = _passwordController.text.trim();
-              
-              if (email.isEmpty || password.isEmpty) {
-                setDialogState(() {
-                  _isLoading = false;
-                  _errorMessage = "Lütfen e-posta ve şifrenizi girin";
-                });
-                return;
-              }
-              
-              if (_validateCredentials(email, password)) {
-                setDialogState(() {
-                  _isLoading = false;
-                });
-                Navigator.pop(dialogContext);
-                Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(
-                    builder: (context) => const HomePage(),
-                  ),
-                );
-              } else {
-                setDialogState(() {
-                  _isLoading = false;
-                  if (email != _validEmail) {
-                    _errorMessage = "Geçersiz e-posta adresi";
-                  } else if (password != _validPassword) {
-                    _errorMessage = "Geçersiz şifre";
-                  } else {
-                    _errorMessage = "Geçersiz e-posta veya şifre";
-                  }
-                });
-              }
-            });
-          }
-          
-          return AlertDialog(
-            backgroundColor: Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-            ),
-            title: const Row(
-              children: [
-                Icon(Icons.login, color: Color(0xFF2A6CB0)),
-                SizedBox(width: 8),
-                Text(
-                  'Giriş Yap',
-                  style: TextStyle(
-                    color: Color(0xFF2A6CB0),
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-            content: Container(
-              constraints: const BoxConstraints(maxWidth: 400),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextField(
-                    controller: _emailController,
-                    decoration: InputDecoration(
-                      labelText: 'E-posta',
-                      hintText: 'Örnek: ahmet.yılmaz@example.com', // Hint for user
-                      prefixIcon: const Icon(Icons.email, color: Color(0xFF2A6CB0)),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: const BorderSide(color: Color(0xFF2A6CB0), width: 2),
-                      ),
-                      enabled: !_isLoading,
-                    ),
-                    keyboardType: TextInputType.emailAddress,
-                  ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: _passwordController,
-                    decoration: InputDecoration(
-                      labelText: 'Şifre',
-                      hintText: 'Örnek: password123', // Hint for user
-                      prefixIcon: const Icon(Icons.lock, color: Color(0xFF2A6CB0)),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: const BorderSide(color: Color(0xFF2A6CB0), width: 2),
-                      ),
-                      enabled: !_isLoading,
-                    ),
-                    obscureText: true,
-                    onSubmitted: (_) => handleLoginWithState(),
-                  ),
-                  const SizedBox(height: 8),
-                  if (_errorMessage != null)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 12.0, bottom: 4.0),
-                      child: Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
-                        decoration: BoxDecoration(
-                          color: Colors.red.shade50,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.red.shade300),
-                        ),
-                        child: Row(
-                          children: [
-                            const Icon(Icons.error_outline, color: Colors.red),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                _errorMessage!,
-                                style: const TextStyle(
-                                  color: Colors.red,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: TextButton(
-                      onPressed: _isLoading ? null : () {},
-                      child: const Text(
-                        'Şifremi Unuttum?',
-                        style: TextStyle(color: Color(0xFF2A6CB0)),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: _isLoading ? null : () => Navigator.pop(dialogContext),
-                child: const Text(
-                  'İptal',
-                  style: TextStyle(color: Colors.grey),
-                ),
-              ),
-              ElevatedButton(
-                onPressed: _isLoading ? null : handleLoginWithState,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF2A6CB0),
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  disabledBackgroundColor: Colors.grey,
-                ),
-                child: _isLoading
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          color: Colors.white,
-                          strokeWidth: 2,
-                        ),
-                      )
-                    : const Text('Giriş Yap'),
-              ),
-            ],
-          );
-        }
       ),
     );
   }

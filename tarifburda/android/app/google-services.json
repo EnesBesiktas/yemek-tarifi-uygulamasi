@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "194984246224",
+    "project_id": "tarifburada-fc7f1",
+    "storage_bucket": "tarifburada-fc7f1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:194984246224:android:62a041e63ec6376ec217d5",
+        "android_client_info": {
+          "package_name": "com.enes.tarifburada"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBbJ5SPS5BZq5pYEtJi-Gv6WFeqxP_S3TE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
