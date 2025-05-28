@@ -51,20 +51,35 @@ class CategoryCard extends StatelessWidget {
                   tag: 'category_${category.id}',
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(16),
-                    child: Image.network(
-                      category.imageUrl,
-                      height: 130,
-                      width: 160,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          height: 130,
-                          width: 160,
-                          color: Colors.grey[300],
-                          child: const Icon(Icons.image_not_supported, color: Colors.white),
-                        );
-                      },
-                    ),
+                    child: category.imageUrl.startsWith('assets/')
+                        ? Image.asset(
+                            category.imageUrl,
+                            height: 130,
+                            width: 160,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Container(
+                                height: 130,
+                                width: 160,
+                                color: Colors.grey[300],
+                                child: const Icon(Icons.image_not_supported, color: Colors.white),
+                              );
+                            },
+                          )
+                        : Image.network(
+                            category.imageUrl,
+                            height: 130,
+                            width: 160,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Container(
+                                height: 130,
+                                width: 160,
+                                color: Colors.grey[300],
+                                child: const Icon(Icons.image_not_supported, color: Colors.white),
+                              );
+                            },
+                          ),
                   ),
                 ),
                 // Karartma efekti

@@ -14,7 +14,7 @@ class MainMenuScreen extends StatelessWidget {
       Category(
         id: '1',
         name: 'Dünya Mutfağı',
-        imageUrl: 'https://cdn.yemek.com/mnresize/940/940/uploads/2021/10/dunya-mutfaklari-sevda.jpg',
+        imageUrl: 'assets/images/categories/dunya-mutfagi.jpg',
         description: 'Farklı ülkelerin mutfaklarından lezzetler',
         icon: Icons.public,
         subCategories: [
@@ -65,7 +65,7 @@ class MainMenuScreen extends StatelessWidget {
       Category(
         id: '2',
         name: 'Pişirme Yöntemi',
-        imageUrl: 'https://cdn.yemek.com/mnresize/940/940/uploads/2022/05/pisirme-teknikleri-sevda.jpg',
+        imageUrl: 'assets/images/categories/pisirme-yontemi.jpg',
         description: 'Farklı pişirme tekniklerine göre tarifler',
         icon: Icons.soup_kitchen,
         subCategories: [
@@ -110,7 +110,7 @@ class MainMenuScreen extends StatelessWidget {
       Category(
         id: '3',
         name: 'Öğüne Göre',
-        imageUrl: 'https://cdn.yemek.com/mnresize/940/940/uploads/2018/06/kahvalti-sofrasi-3.jpg',
+        imageUrl: 'assets/images/categories/ogune-gore.jpg',
         description: 'Günün her öğünü için lezzetli tarifler',
         icon: Icons.restaurant_menu,
         subCategories: [
@@ -149,7 +149,7 @@ class MainMenuScreen extends StatelessWidget {
       Category(
         id: '4',
         name: 'Özel Diyetler',
-        imageUrl: 'https://cdn.yemek.com/mnresize/940/940/uploads/2022/10/saglikli-beslenme-listesi-sevda.jpg',
+        imageUrl: 'assets/images/categories/ozel-diyetler.jpg',
         description: 'Farklı beslenme düzenlerine uygun tarifler',
         icon: Icons.favorite_border,
         subCategories: [
@@ -188,7 +188,7 @@ class MainMenuScreen extends StatelessWidget {
       Category(
         id: '5',
         name: 'Zaman ve Zorluk',
-        imageUrl: 'https://cdn.yemek.com/mnresize/940/940/uploads/2021/11/30-dakika-altinda-yemekler-sevda-1.jpg',
+        imageUrl: 'assets/images/categories/zaman-ve-zorluk.jpg',
         description: 'Zaman ve beceri seviyesine göre tarifler',
         icon: Icons.access_time,
         subCategories: [
@@ -221,7 +221,7 @@ class MainMenuScreen extends StatelessWidget {
       Category(
         id: '6',
         name: 'Tatlılar ve Hamur İşleri',
-        imageUrl: 'https://cdn.yemek.com/mnresize/940/940/uploads/2020/11/ev-yapimi-tatli-sevda.jpg',
+        imageUrl: 'assets/images/categories/tatlilar-ve-hamur-isleri.jpg',
         description: 'Tatlı krizleri için nefis tarifler',
         icon: Icons.cake,
         subCategories: [
@@ -260,7 +260,7 @@ class MainMenuScreen extends StatelessWidget {
       Category(
         id: '7',
         name: 'İçecekler',
-        imageUrl: 'https://cdn.yemek.com/mnresize/940/940/uploads/2022/05/serinleten-icecekler-sevda.jpg',
+        imageUrl: 'assets/images/categories/icecekler.jpg',
         description: 'Ferahlatıcı içecek tarifleri',
         icon: Icons.local_drink,
         subCategories: [
@@ -493,12 +493,19 @@ class MainMenuScreen extends StatelessWidget {
               // Arkaplan resmi
               ClipRRect(
                 borderRadius: BorderRadius.circular(12),
-                child: Image.network(
-                  category.imageUrl,
-                  height: double.infinity,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                ),
+                child: category.imageUrl.startsWith('assets/')
+                    ? Image.asset(
+                        category.imageUrl,
+                        height: double.infinity,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                      )
+                    : Image.network(
+                        category.imageUrl,
+                        height: double.infinity,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                      ),
               ),
               // Karartma efekti
               Container(
