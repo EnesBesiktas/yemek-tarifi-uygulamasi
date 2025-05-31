@@ -16,8 +16,8 @@ class _HomePageState extends State<HomePage> {
   
   final List<Widget> _screens = [
     const MainMenuScreen(),
-    const FavoritesScreen(),
-    const StarredRecipesScreen(),
+    FavoritesScreen(),
+    StarredRecipesScreen(),
     const ProfileScreen(),
   ];
 

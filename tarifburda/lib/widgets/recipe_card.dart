@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/recipe.dart';
+import '../screens/recipe_detail_screen.dart';
 
 class RecipeCard extends StatelessWidget {
   final Recipe recipe;
@@ -229,8 +230,11 @@ class RecipeCard extends StatelessWidget {
                           // Tarifi Gör butonu
                           ElevatedButton.icon(
                             onPressed: () {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('${recipe.name} detayları yakında!')),
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => RecipeDetailScreen(recipe: recipe),
+                                ),
                               );
                             },
                             icon: const Icon(Icons.visibility, size: 18),

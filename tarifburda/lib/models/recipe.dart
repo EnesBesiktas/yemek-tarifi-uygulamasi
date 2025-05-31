@@ -22,4 +22,36 @@ class Recipe {
     this.stars = 0,
     this.isFavorite = false,
   });
+
+  // Firestore'dan veri okuma için factory constructor
+  factory Recipe.fromFirestore(Map<String, dynamic> data, String id) {
+    return Recipe(
+      id: id,
+      name: data['name'] ?? '',
+      description: data['description'] ?? '',
+      imageUrl: data['imageUrl'] ?? '',
+      ingredients: List<String>.from(data['ingredients'] ?? []),
+      instructions: List<String>.from(data['instructions'] ?? []),
+      preparationTime: data['preparationTime'] ?? '',
+      category: data['category'] ?? '',
+      stars: data['stars'] ?? 0,
+      isFavorite: data['isFavorite'] ?? false,
+    );
+  }
+
+  // Firestore'a veri yazma için Map'e dönüştürme
+  Map<String, dynamic> toFirestore() {
+    return {
+      'name': name,
+      'description': description,
+      'imageUrl': imageUrl,
+      'ingredients': ingredients,
+      'instructions': instructions,
+      'preparationTime': preparationTime,
+      'category': category,
+      'stars': stars,
+      'isFavorite': isFavorite,
+    };
+  }
 } 
+ 
