@@ -3,6 +3,7 @@ import 'screens/favorites_screen.dart';
 import 'screens/main_menu_screen.dart';
 import 'screens/starred_recipes_screen.dart';
 import 'screens/profile_screen.dart';
+import 'screens/add_recipe_screen.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -158,8 +159,9 @@ class _HomePageState extends State<HomePage> {
           visible: _selectedIndex == 0,
           child: FloatingActionButton(
             onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Yeni tarif ekleme özelliği yakında!'))
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const AddRecipeScreen()),
               );
             },
             backgroundColor: const Color(0xFFFF5722),

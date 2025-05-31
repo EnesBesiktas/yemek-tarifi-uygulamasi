@@ -3,6 +3,7 @@ import '../models/category.dart';
 import '../models/recipe.dart';
 import '../widgets/category_card.dart';
 import '../widgets/recipe_card.dart';
+import 'add_recipe_screen.dart';
 
 class MainMenuScreen extends StatelessWidget {
   const MainMenuScreen({super.key});
@@ -323,147 +324,160 @@ class MainMenuScreen extends StatelessWidget {
       ),
     ];
 
-    return SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Arama Çubuğu
-            Container(
-              margin: const EdgeInsets.only(bottom: 20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(30),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 10,
-                    offset: const Offset(0, 2),
+    return Scaffold(
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Arama Çubuğu
+              Container(
+                margin: const EdgeInsets.only(bottom: 20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(30),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 10,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: TextField(
+                  decoration: InputDecoration(
+                    hintText: 'Tarif veya malzeme ara...',
+                    prefixIcon: const Icon(Icons.search, color: Color(0xFF2A6CB0)),
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(vertical: 15),
+                    hintStyle: TextStyle(color: Colors.grey[400]),
+                  ),
+                  onSubmitted: (value) {
+                    if (value.isNotEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Arama özelliği yakında: $value')),
+                      );
+                    }
+                  },
+                ),
+              ),
+              
+              // Kategoriler Başlığı
+              const Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Kategoriler',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    'Tümünü Gör',
+                    style: TextStyle(
+                      color: Color(0xFF2A6CB0),
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ],
               ),
-              child: TextField(
-                decoration: InputDecoration(
-                  hintText: 'Tarif veya malzeme ara...',
-                  prefixIcon: const Icon(Icons.search, color: Color(0xFF2A6CB0)),
-                  border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 15),
-                  hintStyle: TextStyle(color: Colors.grey[400]),
-                ),
-                onSubmitted: (value) {
-                  if (value.isNotEmpty) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Arama özelliği yakında: $value')),
+              const SizedBox(height: 16),
+              
+              // Kategoriler Listesi (yatay kaydırılabilir)
+              SizedBox(
+                height: 130,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: mainCategories.length,
+                  itemBuilder: (context, index) {
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 12),
+                      child: CategoryCard(category: mainCategories[index]),
                     );
-                  }
+                  },
+                ),
+              ),
+              
+              const SizedBox(height: 24),
+              
+              // Popüler Kategoriler
+              const Text(
+                'Popüler Kategoriler',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 16),
+              
+              // Popüler kategorilerin grid görünümü
+              GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  childAspectRatio: 1.5,
+                  crossAxisSpacing: 10,
+                  mainAxisSpacing: 10,
+                ),
+                itemCount: 4, // İlk 4 kategoriyi gösterelim
+                itemBuilder: (context, index) {
+                  return _buildPopularCategoryItem(mainCategories[index]);
                 },
               ),
-            ),
-            
-            // Kategoriler Başlığı
-            const Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Kategoriler',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
+              
+              const SizedBox(height: 24),
+              
+              // Günün Tarifleri Başlığı
+              const Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Günün Tarifleri',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-                Text(
-                  'Tümünü Gör',
-                  style: TextStyle(
-                    color: Color(0xFF2A6CB0),
-                    fontWeight: FontWeight.bold,
+                  Text(
+                    'Tümünü Gör',
+                    style: TextStyle(
+                      color: Color(0xFF2A6CB0),
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            
-            // Kategoriler Listesi (yatay kaydırılabilir)
-            SizedBox(
-              height: 130,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: mainCategories.length,
+                ],
+              ),
+              const SizedBox(height: 16),
+              
+              // Günün Tarifleri Listesi
+              ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: dailyRecipes.length,
                 itemBuilder: (context, index) {
                   return Padding(
-                    padding: const EdgeInsets.only(right: 12),
-                    child: CategoryCard(category: mainCategories[index]),
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: RecipeCard(recipe: dailyRecipes[index]),
                   );
                 },
               ),
-            ),
-            
-            const SizedBox(height: 24),
-            
-            // Popüler Kategoriler
-            const Text(
-              'Popüler Kategoriler',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 16),
-            
-            // Popüler kategorilerin grid görünümü
-            GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                childAspectRatio: 1.5,
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 10,
-              ),
-              itemCount: 4, // İlk 4 kategoriyi gösterelim
-              itemBuilder: (context, index) {
-                return _buildPopularCategoryItem(mainCategories[index]);
-              },
-            ),
-            
-            const SizedBox(height: 24),
-            
-            // Günün Tarifleri Başlığı
-            const Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Günün Tarifleri',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Text(
-                  'Tümünü Gör',
-                  style: TextStyle(
-                    color: Color(0xFF2A6CB0),
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            
-            // Günün Tarifleri Listesi
-            ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: dailyRecipes.length,
-              itemBuilder: (context, index) {
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
-                  child: RecipeCard(recipe: dailyRecipes[index]),
-                );
-              },
-            ),
-          ],
+            ],
+          ),
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const AddRecipeScreen()),
+          );
+        },
+        backgroundColor: const Color(0xFF2A6CB0),
+        child: const Icon(Icons.add, color: Colors.white),
+        tooltip: 'Tarif Ekle',
       ),
     );
   }
