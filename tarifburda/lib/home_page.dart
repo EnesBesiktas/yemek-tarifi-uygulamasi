@@ -4,6 +4,9 @@ import 'screens/main_menu_screen.dart';
 import 'screens/starred_recipes_screen.dart';
 import 'screens/profile_screen.dart';
 import 'screens/add_recipe_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'services/firestore_service.dart';
+import 'models/recipe.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -19,7 +22,7 @@ class _HomePageState extends State<HomePage> {
     const MainMenuScreen(),
     FavoritesScreen(),
     StarredRecipesScreen(),
-    const ProfileScreen(),
+    ProfileScreen(),
   ];
 
   @override
@@ -57,6 +60,15 @@ class _HomePageState extends State<HomePage> {
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Bildirimler yakında!'))
+              );
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.person),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ProfileScreen()),
               );
             },
           ),

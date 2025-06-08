@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'home_page.dart';
 
 class LoginPage extends StatefulWidget {
@@ -13,6 +14,7 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   
   // Add valid credentials
   final String _validEmail = "admin@tarifburda.com";
@@ -68,24 +70,55 @@ class _LoginPageState extends State<LoginPage> {
     });
 
     try {
-      await _auth.signInWithEmailAndPassword(
+      final userCredential = await _auth.signInWithEmailAndPassword(
         email: _emailController.text.trim(),
-        password: _passwordController.text.trim(),
+        password: _passwordController.text,
       );
-      
-      if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const HomePage()),
+
+      if (userCredential.user != null) {
+        // Kullanıcı verilerini Firestore'a kaydet
+        final user = userCredential.user!;
+        final userData = {
+          'email': user.email,
+          'displayName': user.displayName ?? user.email!.split('@')[0],
+          'photoUrl': user.photoURL,
+          'favoriteRecipes': [],
+          'myRecipes': [],
+          'createdAt': FieldValue.serverTimestamp(),
+          'lastLoginAt': FieldValue.serverTimestamp(),
+        };
+
+        await _firestore.collection('users').doc(user.uid).set(
+          userData,
+          SetOptions(merge: true), // Varolan verileri koru, sadece eksik alanları ekle
         );
+        
+        if (mounted) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const HomePage()),
+          );
+        }
       }
     } on FirebaseAuthException catch (e) {
       setState(() {
-        _errorMessage = e.message;
+        switch (e.code) {
+          case 'user-not-found':
+            _errorMessage = 'Bu e-posta adresi ile kayıtlı kullanıcı bulunamadı.';
+            break;
+          case 'wrong-password':
+            _errorMessage = 'Hatalı şifre girdiniz.';
+            break;
+          case 'invalid-email':
+            _errorMessage = 'Geçersiz e-posta adresi.';
+            break;
+          default:
+            _errorMessage = 'Giriş yapılırken bir hata oluştu: ${e.message}';
+        }
       });
     } catch (e) {
       setState(() {
-        _errorMessage = 'Bir hata oluştu. Lütfen tekrar deneyin.';
+        _errorMessage = 'Beklenmeyen bir hata oluştu: $e';
       });
     } finally {
       if (mounted) {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/recipe.dart';
 import '../widgets/recipe_card.dart';
 import '../services/firestore_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class FavoritesScreen extends StatelessWidget {
   final FirestoreService _firestoreService = FirestoreService();
@@ -10,6 +11,14 @@ class FavoritesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+
+    if (userId == null) {
+      return const Scaffold(
+        body: Center(child: Text('Giriş yapmalısınız.')),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Favorilerim'),
@@ -17,11 +26,11 @@ class FavoritesScreen extends StatelessWidget {
         foregroundColor: Colors.white,
       ),
       body: StreamBuilder<List<Recipe>>(
-        stream: _firestoreService.getFavoriteRecipes(),
+        stream: _firestoreService.getUserFavorites(userId),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             return Center(
-              child: Text('Bir hata oluştu: ${snapshot.error}'),
+              child: Text('Bir hata oluştu: [36m${snapshot.error}[39m'),
             );
           }
 

@@ -68,4 +68,35 @@ class FirestoreService {
       }).toList();
     });
   }
+
+  // Favori ekle
+  Future<void> addFavorite(String userId, String recipeId) async {
+    await _firestore.collection('favorites').doc('$userId$recipeId').set({
+      'userId': userId,
+      'recipeId': recipeId,
+      'createdAt': FieldValue.serverTimestamp(),
+    });
+  }
+
+  // Favori sil
+  Future<void> removeFavorite(String userId, String recipeId) async {
+    await _firestore.collection('favorites').doc('$userId$recipeId').delete();
+  }
+
+  // Kullanıcının favori tariflerini getir
+  Stream<List<Recipe>> getUserFavorites(String userId) {
+    return _firestore
+        .collection('favorites')
+        .where('userId', isEqualTo: userId)
+        .snapshots()
+        .asyncMap((snapshot) async {
+          final recipeIds = snapshot.docs.map((doc) => doc['recipeId'] as String).toList();
+          if (recipeIds.isEmpty) return <Recipe>[];
+          final recipesSnapshot = await _firestore
+              .collection(_collection)
+              .where(FieldPath.documentId, whereIn: recipeIds)
+              .get();
+          return recipesSnapshot.docs.map((doc) => Recipe.fromFirestore(doc.data(), doc.id)).toList();
+        });
+  }
 } 
