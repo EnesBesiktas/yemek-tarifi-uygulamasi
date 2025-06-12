@@ -1,36 +1,29 @@
 import 'package:flutter/material.dart';
 import '../models/recipe.dart';
-import '../widgets/recipe_card.dart';
 import '../services/firestore_service.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import '../widgets/favorite_button.dart';
 
 class FavoritesScreen extends StatelessWidget {
+  final String userId;
   final FirestoreService _firestoreService = FirestoreService();
 
-  FavoritesScreen({super.key});
+  FavoritesScreen({
+    Key? key,
+    required this.userId,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final userId = FirebaseAuth.instance.currentUser?.uid;
-
-    if (userId == null) {
-      return const Scaffold(
-        body: Center(child: Text('Giriş yapmalısınız.')),
-      );
-    }
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Favorilerim'),
-        backgroundColor: const Color(0xFF2A6CB0),
-        foregroundColor: Colors.white,
       ),
       body: StreamBuilder<List<Recipe>>(
         stream: _firestoreService.getUserFavorites(userId),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             return Center(
-              child: Text('Bir hata oluştu: [36m${snapshot.error}[39m'),
+              child: Text('Bir hata oluştu: ${snapshot.error}'),
             );
           }
 
@@ -44,7 +37,10 @@ class FavoritesScreen extends StatelessWidget {
 
           if (recipes.isEmpty) {
             return const Center(
-              child: Text('Henüz favori tarifiniz bulunmuyor.'),
+              child: Text(
+                'Henüz favori tarifiniz bulunmuyor.',
+                style: TextStyle(fontSize: 16),
+              ),
             );
           }
 
@@ -52,9 +48,67 @@ class FavoritesScreen extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             itemCount: recipes.length,
             itemBuilder: (context, index) {
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 16),
-                child: RecipeCard(recipe: recipes[index]),
+              final recipe = recipes[index];
+              return Card(
+                margin: const EdgeInsets.only(bottom: 16),
+                child: ListTile(
+                  contentPadding: const EdgeInsets.all(16),
+                  leading: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.network(
+                      recipe.imageUrl,
+                      width: 80,
+                      height: 80,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          width: 80,
+                          height: 80,
+                          color: Colors.grey[300],
+                          child: const Icon(Icons.image_not_supported),
+                        );
+                      },
+                    ),
+                  ),
+                  title: Text(
+                    recipe.name,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 8),
+                      Text(
+                        recipe.description,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          const Icon(Icons.timer, size: 16),
+                          const SizedBox(width: 4),
+                          Text(recipe.preparationTime),
+                          const SizedBox(width: 16),
+                          const Icon(Icons.category, size: 16),
+                          const SizedBox(width: 4),
+                          Text(recipe.category),
+                        ],
+                      ),
+                    ],
+                  ),
+                  trailing: FavoriteButton(
+                    userId: userId,
+                    recipeId: recipe.id,
+                    size: 28,
+                  ),
+                  onTap: () {
+                    // TODO: Navigate to recipe detail screen
+                  },
+                ),
               );
             },
           );

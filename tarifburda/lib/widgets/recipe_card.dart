@@ -1,14 +1,47 @@
 import 'package:flutter/material.dart';
 import '../models/recipe.dart';
 import '../screens/recipe_detail_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import '../services/firestore_service.dart';
 
-class RecipeCard extends StatelessWidget {
+class RecipeCard extends StatefulWidget {
   final Recipe recipe;
+  final List<String> userFavoriteIds; // Kullanıcının favori recipeId listesi
 
   const RecipeCard({
-    super.key,
+    Key? key,
     required this.recipe,
-  });
+    required this.userFavoriteIds,
+  }) : super(key: key);
+
+  @override
+  State<RecipeCard> createState() => _RecipeCardState();
+}
+
+class _RecipeCardState extends State<RecipeCard> {
+  final FirestoreService _firestoreService = FirestoreService();
+  late bool isFavorite;
+
+  @override
+  void initState() {
+    super.initState();
+    isFavorite = widget.userFavoriteIds.contains(widget.recipe.id);
+  }
+
+  void _toggleFavorite() async {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId == null) return;
+
+    setState(() {
+      isFavorite = !isFavorite;
+    });
+
+    if (isFavorite) {
+      await _firestoreService.addFavorite(userId, widget.recipe.id);
+    } else {
+      await _firestoreService.removeFavorite(userId, widget.recipe.id);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +63,7 @@ class RecipeCard extends StatelessWidget {
           onTap: () {
             // Tarif detay sayfasına gidecek
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('${recipe.name} tarifi seçildi')),
+              SnackBar(content: Text('${widget.recipe.name} tarifi seçildi')),
             );
           },
           borderRadius: BorderRadius.circular(16),
@@ -48,9 +81,9 @@ class RecipeCard extends StatelessWidget {
                   child: Stack(
                     children: [
                       Hero(
-                        tag: 'recipe_${recipe.id}',
+                        tag: 'recipe_${widget.recipe.id}',
                         child: Image.network(
-                          recipe.imageUrl,
+                          widget.recipe.imageUrl,
                           height: 180,
                           width: double.infinity,
                           fit: BoxFit.cover,
@@ -85,15 +118,15 @@ class RecipeCard extends StatelessWidget {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Icon(
-                                _getCategoryIcon(recipe.category),
-                                color: _getCategoryColor(recipe.category),
+                                _getCategoryIcon(widget.recipe.category),
+                                color: _getCategoryColor(widget.recipe.category),
                                 size: 16,
                               ),
                               const SizedBox(width: 4),
                               Text(
-                                recipe.category,
+                                widget.recipe.category,
                                 style: TextStyle(
-                                  color: _getCategoryColor(recipe.category),
+                                  color: _getCategoryColor(widget.recipe.category),
                                   fontSize: 12,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -117,7 +150,7 @@ class RecipeCard extends StatelessWidget {
                               const Icon(Icons.star, color: Colors.amber, size: 16),
                               const SizedBox(width: 4),
                               Text(
-                                recipe.stars.toString(),
+                                widget.recipe.stars.toString(),
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 13,
@@ -155,7 +188,7 @@ class RecipeCard extends StatelessWidget {
                               ),
                               const SizedBox(width: 4),
                               Text(
-                                recipe.preparationTime,
+                                widget.recipe.preparationTime,
                                 style: const TextStyle(
                                   color: Color(0xFF2A6CB0),
                                   fontSize: 12,
@@ -177,7 +210,7 @@ class RecipeCard extends StatelessWidget {
                     children: [
                       // Tarif adı
                       Text(
-                        recipe.name,
+                        widget.recipe.name,
                         style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
@@ -189,7 +222,7 @@ class RecipeCard extends StatelessWidget {
                       const SizedBox(height: 8),
                       // Tarif açıklaması
                       Text(
-                        recipe.description,
+                        widget.recipe.description,
                         style: const TextStyle(
                           fontSize: 14,
                           color: Colors.grey,
@@ -211,7 +244,7 @@ class RecipeCard extends StatelessWidget {
                           ),
                           Expanded(
                             child: Text(
-                              recipe.ingredients.take(3).join(', ') + (recipe.ingredients.length > 3 ? ' ...' : ''),
+                              widget.recipe.ingredients.take(3).join(', ') + (widget.recipe.ingredients.length > 3 ? ' ...' : ''),
                               style: const TextStyle(
                                 fontSize: 13,
                                 color: Colors.grey,
@@ -233,7 +266,7 @@ class RecipeCard extends StatelessWidget {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => RecipeDetailScreen(recipe: recipe),
+                                  builder: (context) => RecipeDetailScreen(recipe: widget.recipe),
                                 ),
                               );
                             },
@@ -251,22 +284,11 @@ class RecipeCard extends StatelessWidget {
                           // Favori butonu
                           IconButton(
                             icon: Icon(
-                              recipe.isFavorite ? Icons.star : Icons.star_border,
-                              color: recipe.isFavorite ? Colors.amber : Colors.grey,
+                              isFavorite ? Icons.favorite : Icons.favorite_border,
+                              color: isFavorite ? Colors.red : Colors.grey,
                               size: 28,
                             ),
-                            onPressed: () {
-                              // Favorilere ekleme/çıkarma
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    recipe.isFavorite
-                                        ? '${recipe.name} favorilerden çıkarıldı'
-                                        : '${recipe.name} favorilere eklendi',
-                                  ),
-                                ),
-                              );
-                            },
+                            onPressed: _toggleFavorite,
                           ),
                         ],
                       ),

@@ -3,6 +3,7 @@ import '../models/recipe.dart';
 import '../models/category.dart';
 import '../widgets/recipe_card.dart';
 import '../services/firestore_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class RecipePage extends StatelessWidget {
   final Category category;
@@ -17,6 +18,14 @@ class RecipePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+
+    if (userId == null) {
+      return const Scaffold(
+        body: Center(child: Text('Giriş yapmalısınız.')),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: Text(subCategory?.name ?? category.name),
@@ -62,12 +71,22 @@ class RecipePage extends StatelessWidget {
                     );
                   }
 
-                  return ListView.builder(
-                    itemCount: recipes.length,
-                    itemBuilder: (context, index) {
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 16),
-                        child: RecipeCard(recipe: recipes[index]),
+                  return StreamBuilder<List<String>>(
+                    stream: _firestoreService.getUserFavoriteIds(userId),
+                    builder: (context, favoriteSnapshot) {
+                      final favoriteIds = favoriteSnapshot.data ?? [];
+                      
+                      return ListView.builder(
+                        itemCount: recipes.length,
+                        itemBuilder: (context, index) {
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 16),
+                            child: RecipeCard(
+                              recipe: recipes[index],
+                              userFavoriteIds: favoriteIds,
+                            ),
+                          );
+                        },
                       );
                     },
                   );

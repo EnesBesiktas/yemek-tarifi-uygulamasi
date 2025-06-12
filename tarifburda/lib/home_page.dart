@@ -19,8 +19,8 @@ class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
   
   final List<Widget> _screens = [
-    const MainMenuScreen(),
-    FavoritesScreen(),
+    MainMenuScreen(),
+    FavoritesScreen(userId: FirebaseAuth.instance.currentUser?.uid ?? ''),
     StarredRecipesScreen(),
     ProfileScreen(),
   ];
@@ -46,33 +46,6 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: Theme.of(context).colorScheme.primary,
         foregroundColor: Colors.white,
         elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.search),
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Arama özelliği yakında!'))
-              );
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.notifications_outlined),
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Bildirimler yakında!'))
-              );
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.person),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => ProfileScreen()),
-              );
-            },
-          ),
-        ],
       ),
       body: Container(
         decoration: BoxDecoration(
@@ -135,7 +108,7 @@ class _HomePageState extends State<HomePage> {
                 ),
                 child: const Icon(Icons.favorite, color: Color(0xFFFF5722)),
               ),
-              label: 'Favoriler',
+              label: 'Favorilerim',
             ),
             BottomNavigationBarItem(
               icon: const Icon(Icons.star_outline),
@@ -147,7 +120,7 @@ class _HomePageState extends State<HomePage> {
                 ),
                 child: const Icon(Icons.star, color: Colors.amber),
               ),
-              label: 'Yıldızlılarım',
+              label: 'Yıldızlar',
             ),
             BottomNavigationBarItem(
               icon: const Icon(Icons.person_outline),

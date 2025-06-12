@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../models/recipe.dart';
+import '../widgets/favorite_button.dart';
 
 class RecipeDetailScreen extends StatelessWidget {
   final Recipe recipe;
@@ -8,11 +10,23 @@ class RecipeDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(recipe.name),
         backgroundColor: const Color(0xFF2A6CB0),
         foregroundColor: Colors.white,
+        actions: [
+          if (userId != null)
+            FavoriteButton(
+              userId: userId,
+              recipeId: recipe.id,
+              size: 28,
+              color: Colors.white,
+              activeColor: Colors.red,
+            ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Column(
