@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'dart:io';
 import '../models/recipe.dart';
 import '../services/firestore_service.dart';
 
@@ -14,7 +17,6 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _descriptionController = TextEditingController();
-  final _imageUrlController = TextEditingController();
   final _ingredientsController = TextEditingController();
   final _instructionsController = TextEditingController();
   final _preparationTimeController = TextEditingController();
@@ -22,20 +24,57 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
   final _starsController = TextEditingController(text: '0');
   bool _isFavorite = false;
   bool _isLoading = false;
+  File? _selectedImage;
+  String? _uploadedImageUrl;
 
   final FirestoreService _firestoreService = FirestoreService();
+  final ImagePicker _imagePicker = ImagePicker();
 
   @override
   void dispose() {
     _nameController.dispose();
     _descriptionController.dispose();
-    _imageUrlController.dispose();
     _ingredientsController.dispose();
     _instructionsController.dispose();
     _preparationTimeController.dispose();
     _categoryController.dispose();
     _starsController.dispose();
     super.dispose();
+  }
+
+  Future<void> _pickImage() async {
+    try {
+      final XFile? image = await _imagePicker.pickImage(source: ImageSource.gallery);
+      if (image != null) {
+        setState(() {
+          _selectedImage = File(image.path);
+        });
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Resim seçilirken hata oluştu: $e')),
+      );
+    }
+  }
+
+  Future<String?> _uploadImage() async {
+    if (_selectedImage == null) return null;
+
+    try {
+      final String fileName = DateTime.now().millisecondsSinceEpoch.toString();
+      final Reference storageRef = FirebaseStorage.instance.ref().child('recipe_images/$fileName.jpg');
+      
+      final UploadTask uploadTask = storageRef.putFile(_selectedImage!);
+      final TaskSnapshot taskSnapshot = await uploadTask;
+      
+      final String downloadUrl = await taskSnapshot.ref.getDownloadURL();
+      return downloadUrl;
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Resim yüklenirken hata oluştu: $e')),
+      );
+      return null;
+    }
   }
 
   Future<void> _submit() async {
@@ -51,16 +90,24 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
 
     setState(() => _isLoading = true);
     try {
+      String? imageUrl;
+      if (_selectedImage != null) {
+        imageUrl = await _uploadImage();
+        if (imageUrl == null) {
+          throw Exception('Resim yüklenemedi');
+        }
+      }
+
       final recipe = Recipe(
         id: '', // Firestore otomatik oluşturacak
         name: _nameController.text.trim(),
         description: _descriptionController.text.trim(),
-        imageUrl: _imageUrlController.text.trim(),
+        imageUrl: imageUrl ?? '',
         ingredients: _ingredientsController.text.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList(),
         instructions: _instructionsController.text.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList(),
         preparationTime: _preparationTimeController.text.trim(),
         category: _categoryController.text.trim(),
-        userId: user.uid, // Kullanıcı ID'sini ekliyoruz
+        userId: user.uid,
         stars: int.tryParse(_starsController.text.trim()) ?? 0,
         isFavorite: _isFavorite,
       );
@@ -96,10 +143,30 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
                 decoration: const InputDecoration(labelText: 'Açıklama'),
                 validator: (v) => v == null || v.isEmpty ? 'Zorunlu alan' : null,
               ),
-              TextFormField(
-                controller: _imageUrlController,
-                decoration: const InputDecoration(labelText: 'Resim Linki'),
+              const SizedBox(height: 16),
+              if (_selectedImage != null)
+                Container(
+                  height: 200,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.file(
+                      _selectedImage!,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+              const SizedBox(height: 8),
+              ElevatedButton.icon(
+                onPressed: _pickImage,
+                icon: const Icon(Icons.image),
+                label: Text(_selectedImage == null ? 'Resim Seç' : 'Resmi Değiştir'),
               ),
+              const SizedBox(height: 16),
               TextFormField(
                 controller: _ingredientsController,
                 decoration: const InputDecoration(labelText: 'Malzemeler (virgülle ayır)'),
