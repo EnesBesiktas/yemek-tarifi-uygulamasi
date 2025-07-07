@@ -32,15 +32,25 @@ class ProfileScreen extends StatelessWidget {
     }
 
     return DefaultTabController(
-      length: 3,
+      length: 2,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Profilim'),
-          bottom: const TabBar(
-            tabs: [
+          elevation: 0,
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          title: Text(
+            'Profilim',
+            style: TextStyle(
+              color: Theme.of(context).primaryColor,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          bottom: TabBar(
+            indicatorColor: Theme.of(context).primaryColor,
+            labelColor: Theme.of(context).primaryColor,
+            unselectedLabelColor: Colors.grey,
+            tabs: const [
               Tab(text: 'Bilgilerim'),
               Tab(text: 'Tariflerim'),
-              Tab(text: 'Favorilerim'),
             ],
           ),
         ),
@@ -48,7 +58,6 @@ class ProfileScreen extends StatelessWidget {
           children: [
             _buildUserInfoTab(user),
             _buildUserRecipesTab(user.uid),
-            _buildUserFavoritesTab(user.uid),
           ],
         ),
       ),
@@ -72,28 +81,53 @@ class ProfileScreen extends StatelessWidget {
           return const Center(child: Text('Kullanıcı bilgileri bulunamadı'));
         }
 
-        return SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: CircleAvatar(
-                  radius: 50,
-                  backgroundImage: userData['photoUrl'] != null
-                      ? NetworkImage(userData['photoUrl'])
-                      : null,
-                  child: userData['photoUrl'] == null
-                      ? const Icon(Icons.person, size: 50)
-                      : null,
+        return Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Theme.of(context).primaryColor.withOpacity(0.1),
+                Colors.white,
+              ],
+            ),
+          ),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          spreadRadius: 2,
+                          blurRadius: 10,
+                        ),
+                      ],
+                    ),
+                    child: CircleAvatar(
+                      radius: 60,
+                      backgroundColor: Colors.white,
+                      backgroundImage: userData['photoUrl'] != null
+                          ? NetworkImage(userData['photoUrl'])
+                          : null,
+                      child: userData['photoUrl'] == null
+                          ? Icon(Icons.person, size: 60, color: Theme.of(context).primaryColor)
+                          : null,
+                    ),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 24),
-              _buildInfoCard('E-posta', userData['email'] ?? ''),
-              _buildInfoCard('Kullanıcı Adı', userData['displayName'] ?? ''),
-              _buildInfoCard('Kayıt Tarihi', formatTimestamp(userData['createdAt'])),
-              _buildInfoCard('Son Giriş', formatTimestamp(userData['lastLoginAt'])),
-            ],
+                const SizedBox(height: 32),
+                _buildInfoCard('E-posta', userData['email'] ?? '', Icons.email),
+                _buildInfoCard('Kullanıcı Adı', userData['displayName'] ?? '', Icons.person),
+                _buildInfoCard('Kayıt Tarihi', formatTimestamp(userData['createdAt']), Icons.calendar_today),
+                _buildInfoCard('Son Giriş', formatTimestamp(userData['lastLoginAt']), Icons.access_time),
+              ],
+            ),
           ),
         );
       },
@@ -114,7 +148,26 @@ class ProfileScreen extends StatelessWidget {
 
         final recipeIds = snapshot.data!;
         if (recipeIds.isEmpty) {
-          return const Center(child: Text('Henüz tarif eklenmemiş'));
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.restaurant_menu,
+                  size: 64,
+                  color: Colors.grey[400],
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Henüz tarif eklenmemiş',
+                  style: TextStyle(
+                    color: Colors.grey[600],
+                    fontSize: 16,
+                  ),
+                ),
+              ],
+            ),
+          );
         }
 
         return StreamBuilder<List<Recipe>>(
@@ -133,26 +186,98 @@ class ProfileScreen extends StatelessWidget {
                 .toList();
 
             return ListView.builder(
+              padding: const EdgeInsets.all(16),
               itemCount: recipes.length,
               itemBuilder: (context, index) {
                 final recipe = recipes[index];
                 return Card(
-                  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: ListTile(
-                    leading: recipe.imageUrl.isNotEmpty
-                        ? ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
+                  elevation: 4,
+                  margin: const EdgeInsets.only(bottom: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(16),
+                    onTap: () {
+                      // Navigate to recipe detail
+                    },
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (recipe.imageUrl.isNotEmpty)
+                          ClipRRect(
+                            borderRadius: const BorderRadius.vertical(
+                              top: Radius.circular(16),
+                            ),
                             child: Image.network(
                               recipe.imageUrl,
-                              width: 60,
-                              height: 60,
+                              height: 200,
+                              width: double.infinity,
                               fit: BoxFit.cover,
                             ),
-                          )
-                        : const Icon(Icons.restaurant, size: 40),
-                    title: Text(recipe.name),
-                    subtitle: Text(recipe.description),
-                    trailing: Text('${recipe.stars} ⭐'),
+                          ),
+                        Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      recipe.name,
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 6,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Theme.of(context).primaryColor.withOpacity(0.1),
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        const Icon(
+                                          Icons.star,
+                                          size: 16,
+                                          color: Colors.amber,
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          recipe.stars.toString(),
+                                          style: TextStyle(
+                                            color: Theme.of(context).primaryColor,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                recipe.description,
+                                style: TextStyle(
+                                  color: Colors.grey[600],
+                                  fontSize: 14,
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 );
               },
@@ -163,90 +288,49 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildUserFavoritesTab(String userId) {
-    return StreamBuilder<List<String>>(
-      stream: _userService.getUserFavorites(userId),
-      builder: (context, snapshot) {
-        if (snapshot.hasError) {
-          return Center(child: Text('Hata: ${snapshot.error}'));
-        }
-
-        if (!snapshot.hasData) {
-          return const Center(child: CircularProgressIndicator());
-        }
-
-        final favoriteIds = snapshot.data!;
-        if (favoriteIds.isEmpty) {
-          return const Center(child: Text('Henüz favori tarif eklenmemiş'));
-        }
-
-        return StreamBuilder<List<Recipe>>(
-          stream: _firestoreService.getRecipes(),
-          builder: (context, snapshot) {
-            if (snapshot.hasError) {
-              return Center(child: Text('Hata: ${snapshot.error}'));
-            }
-
-            if (!snapshot.hasData) {
-              return const Center(child: CircularProgressIndicator());
-            }
-
-            final recipes = snapshot.data!
-                .where((recipe) => favoriteIds.contains(recipe.id))
-                .toList();
-
-            return ListView.builder(
-              itemCount: recipes.length,
-              itemBuilder: (context, index) {
-                final recipe = recipes[index];
-                return Card(
-                  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: ListTile(
-                    leading: recipe.imageUrl.isNotEmpty
-                        ? ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: Image.network(
-                              recipe.imageUrl,
-                              width: 60,
-                              height: 60,
-                              fit: BoxFit.cover,
-                            ),
-                          )
-                        : const Icon(Icons.restaurant, size: 40),
-                    title: Text(recipe.name),
-                    subtitle: Text(recipe.description),
-                    trailing: Text('${recipe.stars} ⭐'),
-                  ),
-                );
-              },
-            );
-          },
-        );
-      },
-    );
-  }
-
-  Widget _buildInfoCard(String title, String value) {
+  Widget _buildInfoCard(String title, String value, IconData icon) {
     return Card(
+      elevation: 2,
       margin: const EdgeInsets.only(bottom: 16),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Row(
           children: [
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 14,
-                color: Colors.grey,
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.blue.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                icon,
+                color: Colors.blue,
               ),
             ),
-            const SizedBox(height: 4),
-            Text(
-              value,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    value,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
