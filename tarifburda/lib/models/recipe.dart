@@ -9,6 +9,7 @@ class Recipe {
   final String category;
   final int stars;
   final bool isFavorite;
+  final String userId;
 
   Recipe({
     required this.id,
@@ -19,6 +20,7 @@ class Recipe {
     required this.instructions,
     required this.preparationTime,
     required this.category,
+    required this.userId,
     this.stars = 0,
     this.isFavorite = false,
   });
@@ -34,6 +36,7 @@ class Recipe {
       instructions: List<String>.from(data['instructions'] ?? []),
       preparationTime: data['preparationTime'] ?? '',
       category: data['category'] ?? '',
+      userId: data['userId'] ?? '',
       stars: data['stars'] ?? 0,
       isFavorite: data['isFavorite'] ?? false,
     );
@@ -49,6 +52,7 @@ class Recipe {
       'instructions': instructions,
       'preparationTime': preparationTime,
       'category': category,
+      'userId': userId,
       'stars': stars,
       'isFavorite': isFavorite,
     };

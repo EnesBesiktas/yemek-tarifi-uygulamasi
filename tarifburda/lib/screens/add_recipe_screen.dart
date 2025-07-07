@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../models/recipe.dart';
 import '../services/firestore_service.dart';
 
@@ -39,6 +40,15 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
+    
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Lütfen önce giriş yapın')),
+      );
+      return;
+    }
+
     setState(() => _isLoading = true);
     try {
       final recipe = Recipe(
@@ -50,6 +60,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
         instructions: _instructionsController.text.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList(),
         preparationTime: _preparationTimeController.text.trim(),
         category: _categoryController.text.trim(),
+        userId: user.uid, // Kullanıcı ID'sini ekliyoruz
         stars: int.tryParse(_starsController.text.trim()) ?? 0,
         isFavorite: _isFavorite,
       );

@@ -305,6 +305,7 @@ class MainMenuScreen extends StatelessWidget {
         instructions: ['Mantarları temizleyip doğrayın', 'Soğan ve sarımsağı yağda kavurun', 'Mantarları ekleyip kavurmaya devam edin', 'Un ve kremayı ekleyin'],
         preparationTime: '30 dakika',
         category: 'Çorbalar',
+        userId: 'admin',
         stars: 4,
       ),
       Recipe(
@@ -316,6 +317,7 @@ class MainMenuScreen extends StatelessWidget {
         instructions: ['Tavuk butları yıkayıp kurulayın', 'Baharatları karıştırın', 'Tavukları marine edin', 'Fırında pişirin'],
         preparationTime: '45 dakika',
         category: 'Et Yemekleri',
+        userId: 'admin',
         stars: 5,
       ),
       Recipe(
@@ -327,6 +329,7 @@ class MainMenuScreen extends StatelessWidget {
         instructions: ['Bisküvileri robottan geçirin', 'Tereyağı ile karıştırıp kalıba bastırın', 'Peynirli harcı hazırlayın', 'Üzerine karamel sos gezdirin'],
         preparationTime: '60 dakika',
         category: 'Tatlılar',
+        userId: 'admin',
         stars: 5,
       ),
     ];
