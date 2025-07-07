@@ -126,31 +126,31 @@ class MainMenuScreen extends StatelessWidget {
           SubCategory(
             id: '3-1',
             name: 'Kahvaltılıklar',
-            imageUrl: 'https://cdn.yemek.com/mnresize/940/940/uploads/2015/04/kahvalti-tabagi-yeni.jpg',
+            imageUrl: 'assets/images/ogunegore/kahvaltiliklar.jpeg',
             description: 'Güne enerji dolu başlamak için kahvaltılık tarifler',
           ),
           SubCategory(
             id: '3-2',
             name: 'Öğle Yemekleri',
-            imageUrl: 'https://cdn.yemek.com/mnresize/940/940/uploads/2021/06/pratik-ogle-yemekleri-sevda.jpg',
+            imageUrl: 'assets/images/ogunegore/ogle-yemekleri.jpeg',
             description: 'Ofiste veya evde pratik öğle yemeği tarifleri',
           ),
           SubCategory(
             id: '3-3',
             name: 'Akşam Yemekleri',
-            imageUrl: 'https://cdn.yemek.com/mnresize/940/940/uploads/2022/01/tek-kisilik-aksamyemegi-sevda.jpg',
+            imageUrl: 'assets/images/ogunegore/aksam-yemekleri.jpeg',
             description: 'Akşam için doyurucu ve lezzetli yemek tarifleri',
           ),
           SubCategory(
             id: '3-4',
             name: 'Ara Öğünler',
-            imageUrl: 'https://cdn.yemek.com/mnresize/940/940/uploads/2021/12/saglikli-atiştirmaliklar-sevda.jpg',
+            imageUrl: 'assets/images/ogunegore/ara-ogunler.jpg',
             description: 'Ara öğünler için sağlıklı atıştırmalıklar',
           ),
           SubCategory(
             id: '3-5',
             name: 'Atıştırmalıklar',
-            imageUrl: 'https://cdn.yemek.com/mnresize/940/940/uploads/2020/04/ev-cipsi-yemekcom.jpg',
+            imageUrl: 'assets/images/ogunegore/atistirmaliklar.jpg',
             description: 'Film akşamları için pratik atıştırmalıklar',
           ),
         ]
