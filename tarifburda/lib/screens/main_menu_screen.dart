@@ -30,43 +30,43 @@ class MainMenuScreen extends StatelessWidget {
           SubCategory(
             id: '1-1',
             name: 'İtalyan',
-            imageUrl: 'https://cdn.yemek.com/mnresize/940/940/uploads/2022/10/italyan-makarna-sevda.jpg',
+            imageUrl: 'assets/images/flags/italya.jpeg',
             description: 'İtalyan mutfağından lezzetli tarifler',
           ),
           SubCategory(
             id: '1-2',
             name: 'Meksika',
-            imageUrl: 'https://cdn.yemek.com/mnresize/940/940/uploads/2022/04/taco-sevda.jpg',
+            imageUrl: 'assets/images/flags/meksika.png',
             description: 'Meksika mutfağından baharatlı lezzetler',
           ),
           SubCategory(
             id: '1-3',
             name: 'Hint',
-            imageUrl: 'https://cdn.yemek.com/mnresize/940/940/uploads/2022/02/hindistan-yemek-kulturu-sevda.jpg',
+            imageUrl: 'assets/images/flags/hint.png',
             description: 'Hint mutfağından baharatlı yemekler',
           ),
           SubCategory(
             id: '1-4',
             name: 'Çin',
-            imageUrl: 'https://cdn.yemek.com/mnresize/940/940/uploads/2016/05/cin-mutfagi-yeni-kapak.jpg',
+            imageUrl: 'assets/images/flags/cin.png',
             description: 'Çin mutfağından farklı lezzetler',
           ),
           SubCategory(
             id: '1-5',
             name: 'Japon',
-            imageUrl: 'https://cdn.yemek.com/mnresize/940/940/uploads/2022/06/japon-mutfagi-sevda.jpg',
+            imageUrl: 'assets/images/flags/japon.png',
             description: 'Japon mutfağından eşsiz lezzetler',
           ),
           SubCategory(
             id: '1-6',
             name: 'Orta Doğu',
-            imageUrl: 'https://cdn.yemek.com/mnresize/940/940/uploads/2022/11/ortadogu-yemekleri-sevda.jpg',
+            imageUrl: 'assets/images/flags/orta-dogu.png',
             description: 'Orta Doğu mutfağından baharatlı tarifler',
           ),
           SubCategory(
             id: '1-7',
             name: 'Türk Mutfağı',
-            imageUrl: 'https://cdn.yemek.com/mnresize/940/940/uploads/2021/06/geleneksel-turk-yemekleri-sevda.jpg',
+            imageUrl: 'assets/images/flags/türk.jpeg',
             description: 'Türk mutfağından geleneksel tarifler',
           ),
         ]
@@ -588,21 +588,39 @@ class MainMenuScreen extends StatelessWidget {
                               ),
                               child: ListTile(
                                 contentPadding: const EdgeInsets.all(12),
-                                leading: ClipRRect(
-                                  borderRadius: BorderRadius.circular(8),
-                                  child: Image.network(
-                                    subCategory.imageUrl,
-                                    width: 60,
-                                    height: 60,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (context, error, stackTrace) {
-                                      return Container(
-                                        width: 60,
-                                        height: 60,
-                                        color: Colors.grey[300],
-                                        child: const Icon(Icons.image_not_supported),
-                                      );
-                                    },
+                                leading: Container(
+                                  width: 40,
+                                  height: 40,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(
+                                      color: Colors.grey.withOpacity(0.2),
+                                      width: 1,
+                                    ),
+                                  ),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: subCategory.imageUrl.startsWith('assets/')
+                                      ? Image.asset(
+                                          subCategory.imageUrl,
+                                          width: 40,
+                                          height: 40,
+                                          fit: BoxFit.cover,
+                                        )
+                                      : Image.network(
+                                          subCategory.imageUrl,
+                                          width: 40,
+                                          height: 40,
+                                          fit: BoxFit.cover,
+                                          errorBuilder: (context, error, stackTrace) {
+                                            return Container(
+                                              width: 40,
+                                              height: 40,
+                                              color: Colors.grey[300],
+                                              child: const Icon(Icons.image_not_supported, size: 20),
+                                            );
+                                          },
+                                        ),
                                   ),
                                 ),
                                 title: Text(

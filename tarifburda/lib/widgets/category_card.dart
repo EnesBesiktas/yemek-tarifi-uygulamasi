@@ -283,25 +283,31 @@ class CategoryCard extends StatelessWidget {
                         padding: const EdgeInsets.all(12),
                         child: Row(
                           children: [
-                            // Alt kategori resmi
                             ClipRRect(
                               borderRadius: BorderRadius.circular(8),
-                              child: Image.network(
-                                subCategory.imageUrl,
-                                width: 80,
-                                height: 80,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return Container(
-                                    width: 80,
-                                    height: 80,
-                                    color: Colors.grey[300],
-                                    child: const Icon(Icons.image_not_supported, color: Colors.white),
-                                  );
-                                },
-                              ),
+                              child: subCategory.imageUrl.startsWith('assets/')
+                                ? Image.asset(
+                                    subCategory.imageUrl,
+                                    width: 60,
+                                    height: 60,
+                                    fit: BoxFit.cover,
+                                  )
+                                : Image.network(
+                                    subCategory.imageUrl,
+                                    width: 60,
+                                    height: 60,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Container(
+                                        width: 60,
+                                        height: 60,
+                                        color: Colors.grey[300],
+                                        child: const Icon(Icons.image_not_supported),
+                                      );
+                                    },
+                                  ),
                             ),
-                            const SizedBox(width: 16),
+                            const SizedBox(width: 12),
                             // Alt kategori bilgileri
                             Expanded(
                               child: Column(
