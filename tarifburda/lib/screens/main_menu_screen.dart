@@ -81,37 +81,37 @@ class MainMenuScreen extends StatelessWidget {
           SubCategory(
             id: '2-1',
             name: 'Fırın Yemekleri',
-            imageUrl: 'https://cdn.yemek.com/mnresize/940/940/uploads/2015/01/firinda-tavuk-but-yemekcom.jpg',
+            imageUrl: 'assets/images/pisirmeyontemleri/firin-yemekleri.jpg',
             description: 'Fırında yapılan pratik ve lezzetli yemekler',
           ),
           SubCategory(
             id: '2-2',
             name: 'Tencere Yemekleri',
-            imageUrl: 'https://cdn.yemek.com/mnresize/940/940/uploads/2021/10/kis-yemekleri-sevda.jpg',
+            imageUrl: 'assets/images/pisirmeyontemleri/tencere-yemekleri.jpg',
             description: 'Tencerede pişirilen lezzetli yemekler',
           ),
           SubCategory(
             id: '2-3',
             name: 'Izgara',
-            imageUrl: 'https://cdn.yemek.com/mnresize/940/940/uploads/2015/06/izgara-kofte-yeni-one-cikan.jpg',
+            imageUrl: 'assets/images/pisirmeyontemleri/izgara.jpg',
             description: 'Izgarada pişirilen et ve sebze tarifleri',
           ),
           SubCategory(
             id: '2-4',
             name: 'Buharda',
-            imageUrl: 'https://cdn.yemek.com/mnresize/940/940/uploads/2022/03/buharda-pisirme-sevda.jpg',
+            imageUrl: 'assets/images/pisirmeyontemleri/buharda.jpeg',
             description: 'Buharda pişirilen sağlıklı tarifler',
           ),
           SubCategory(
             id: '2-5',
             name: 'Kızartmalar',
-            imageUrl: 'https://cdn.yemek.com/mnresize/940/940/uploads/2019/01/patates-kizartmasi-yemekcom.jpg',
+            imageUrl: 'assets/images/pisirmeyontemleri/kizartmalar.jpeg',
             description: 'Kızartma tekniğiyle hazırlanan tarifler',
           ),
           SubCategory(
             id: '2-6',
             name: 'Çiğ Tarifler',
-            imageUrl: 'https://cdn.yemek.com/mnresize/940/940/uploads/2022/05/raw-food-sevda.jpg',
+            imageUrl: 'assets/images/pisirmeyontemleri/cig-tarifler.jpeg',
             description: 'Pişirilmeden hazırlanan sağlıklı tarifler',
           ),
         ]
