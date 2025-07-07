@@ -73,6 +73,10 @@ flutter:
     - assets/images/flags/
     - assets/images/pisirmeyontemleri/
     - assets/images/ogunegore/
+    - assets/images/ozeldiyetler/
+    - assets/images/zamanvezorluk/
+    - assets/images/icecekler/
+    - assets/images/tatlilarvehamurisleri/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
